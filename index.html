@@ -1,0 +1,151 @@
+<!Doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="The 6-week online programs exclusively for European startup founders globally">
+        <meta name="author" content="European Startup Universe">
+        <meta property="og:url" content=""/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="European Startup Universe"/>
+        <meta property="og:site_name" content="European Startup Universe"/>
+        <meta property="og:description" 
+                content="The 6-week online programs exclusively for European startup founders globally."
+        />
+        <meta property="og:image" content="content/img/facebook_open_graph.png"/>
+        <title>European Startup Universe</title>
+        <!-- Favicon-->
+        <link rel="shortcut icon" href="content/img/favicon.png">
+        <!-- Bootstrap Core CSS -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+   
+        <link rel="stylesheet" href="css/landing.css">
+        <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+        <style type="text/css">
+            #header-hide{
+                height: 32px;
+                position: absolute;
+                top: 227px;
+                z-index: 10;
+                background-color: #fff;
+                width: 90%;
+            }
+        </style>
+    </head>
+    <body>
+
+    <!-- Navigation Bar Section -->
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="content/img/european_startup_universe_white_logo.png" width="auto" height="55px" alt="European Startup Universe white logo">
+            </a>
+        </div>
+    </nav>
+
+    <!-- About section -->
+    <section id="section-about">
+        <div class="container">
+            <button id="btn-session" class="btn btn-primary mb-3">Create a live session and start</button>
+            <div class="jumbotron background-standing" id="daily-frame-wrapper">
+                <div id="header-hide"></div>
+            </div>       
+        </div>
+    </section>
+
+
+    <script src="js/jquerry.v2.1.4.min.js"></script>
+    <script src="js/poper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).on('click', '.btn-primary', function(element){
+
+            element.preventDefault();
+
+            $.ajax({
+                type: "post",
+                url: 'https://api.daily.co/v1/rooms',
+                data: '{"privacy":"public","properties":{"start_audio_off":true,"start_video_off":true}}',
+                dataType: "json",
+                beforeSend: function(xhr) {
+                     xhr.setRequestHeader("Authorization", "Bearer 5ab986c45696320befe3cf2c88ab8765515a73193f8532d27e7ffe6a0ec4abe3")
+                }, success: function(response){
+                    alert(response);
+                    run(response.name)
+                }
+            });
+
+        });
+
+        function run(roomName) {
+            
+                window.callFrame = window.DailyIframe.createFrame(
+                    document.getElementById('daily-frame-wrapper'),
+                {
+                    showLeaveButton: true,
+                    iframeStyle: {
+                        width: '100%',
+                        height: '80vh',
+                        border: '0'
+                        },
+                    theme: {
+                        colors: {
+                                accent: '#007bff',
+                                accentText: '#FFFFFF',
+                                background: '#FFFFFF',
+                                backgroundAccent: '#FBFCFD',
+                                baseText: '#000000',
+                                border: '#FFFFFF',
+                                mainAreaBg: '#FFFFFF',
+                                mainAreaBgAccent: '#333333',
+                                mainAreaText: '#333333',
+                                supportiveText: '#808080',
+                            }
+                        }
+                });
+
+                function doAfterJoin() {
+                    let btnClose = document.getElementById('btn-session');
+                    btnClose.style.visibility = 'hidden';
+                }
+
+                // Event handlers
+                callFrame
+                    .on('joined-meeting', doAfterJoin)
+                    .on('left-meeting', leave);
+
+                // Leave handler
+                function leave() {
+                    callFrame.destroy();
+                    document.getElementById('daily-frame-wrapper').innerHTML = 'Yo yo!';
+
+                    let btnClose = document.getElementById('btn-session');
+                    btnClose.style.visibility = 'unset';
+
+                    // Delete room after the host leaves
+                    $.ajax({
+                        type: "delete",
+                        url: 'https://api.daily.co/v1/rooms/' + roomName + '',
+                        dataType: "json",
+                        beforeSend: function(xhr) {
+                             xhr.setRequestHeader("Authorization", "Bearer 5ab986c45696320befe3cf2c88ab8765515a73193f8532d27e7ffe6a0ec4abe3")
+                        }, success: function(response){
+                            alert(response);
+                        }
+                    });
+
+                    // Delete room also on our servers
+
+                }
+                
+                // Join the room
+                callFrame.join({ 
+                    url: 'https://testingfh.daily.co/' + roomName + '',
+                    userName: 'Dimitris' 
+                });
+
+            };
+
+    </script>
+  </body>
+</html>
